@@ -4,6 +4,9 @@
   gather_facts: false
   vars: 
   - awx_kubeconfig: ""
+  - awx_admin_username: "awx"
+  - awx_admin_password: "awx123456"
+  - awx_admin_email: mail@example.com
   tasks:
     - name: "Include garliclabs.ansible_role_ensure_awx_state"
       ansible.builtin.include_role:
