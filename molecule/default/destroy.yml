@@ -1,0 +1,17 @@
+---
+- name: Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Destroy molecule instance(s)
+      ansible.builtin.command: k3d cluster delete {{ item.name }}
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      no_log: false
+      async: 7200
+      poll: 0
+      ignore_errors: true

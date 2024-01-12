@@ -1,0 +1,16 @@
+galaxy_info:
+  author: ngotzmann, lsiemer
+  namespace: garliclabs
+  description: Manages the installation state of awx in a kubernetes cluster via helm
+  license: GPL-3.0-only
+
+  min_ansible_version: "2.11"
+
+  platforms:
+  - name: Debian
+
+  galaxy_tags:
+    - helm
+    - kubernetes
+    - awx
+    - ansible

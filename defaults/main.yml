@@ -1,0 +1,25 @@
+---
+
+awx_namespace: default
+awx_name: awx
+awx_state: present
+awx_chart_version: 2.10.0
+awx_kubeconfig: "{{ undef(hint='Specify kubeconfig so the cluster get be accessed') }}"
+# awx_secret: "{{ undef(hint='Specify your awx secret') }}"
+
+#Provide a path to your own helm value file 
+#awx_value_path: Set path to your own helm values file
+
+#Or use our default value file and fill out following defaults
+
+# awx_admin_password: "{{ undef(hint='Specify your awx admin password') }}"
+# awx_postgres_database: awx
+# awx_postgres_host: "{{ undef(hint='Specify your awx postgres host') }}"
+# awx_postgres_port: "5432"
+# awx_postgres_username: "{{ undef(hint='Specify your awx postgres username') }"
+# awx_postgres_password: "{{ undef(hint='Specify your awx postgres password') }}"
+# awx_hostname: awx.example.com
+# awx_admin_username: admin
+# awx_admin_email: mail@example.com
+# awx_storage_class: default
+# awx_storage_size: 8Gi

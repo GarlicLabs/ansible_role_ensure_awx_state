@@ -1,0 +1,32 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  vars:
+    molecule_labels:
+      owner: molecule
+  tasks:
+    - name: Create molecule instance(s)
+      ansible.builtin.command: k3d cluster create {{ item.name }}
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+      no_log: false
+      async: 7200
+      poll: 0
+
+    - name: Wait for instance(s) creation to complete
+      ansible.builtin.async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: k3d_jobs
+      until: k3d_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+
+    - name: Merge cluster's kubeconfig
+      ansible.builtin.command: k3d kubeconfig merge {{ item.name }}
+      with_items: "{{ molecule_yml.platforms }}"
+      register: result

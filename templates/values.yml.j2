@@ -1,0 +1,15 @@
+AWX:
+  enabled: true
+  name: "{{ awx_name }}"
+  spec:
+    admin_user: "{{ awx_admin_username }}"
+    admin_email: "{{ awx_admin_email }}"
+    admin_password_secret: awx-admin-password
+    secret_key_secret: awx-secret-key-secret
+    service_type: ClusterIP
+    hostname: "{{ awx_hostname }}"
+    postgres_configuration_secret: awx-postgres-secret
+    projects_persistence: true
+    projects_storage_class: "{{ awx_storage_class }}"
+    projects_storage_size: "{{ awx_storage_size }}"
+    auto_upgrade: false

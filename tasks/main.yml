@@ -1,0 +1,94 @@
+---
+
+- name: Use provided helm values
+  ansible.builtin.set_fact:
+    awx_helm_values_template: "{{ awx_value_path }}"
+  when: (awx_value_path is defined) and (awx_value_path|length>0)
+
+- name: Use default helm values
+  ansible.builtin.set_fact:
+    awx_helm_values_template: "values.yml.j2"
+  when: (awx_value_path is undefined) or (awx_value_path|length == 0)
+
+- name: Set awx helm values variable content
+  ansible.builtin.set_fact:
+    awx_helm_values: "{{ lookup('template', awx_helm_values_template) | from_yaml }}"
+
+- name: "Ensure awx admin user password is {{ awx_namespace }}"
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: awx-admin-password
+        namespace: "{{ awx_namespace }}"
+      stringData:
+        password: "{{ awx_admin_password }}"
+    state: "{{ awx_state }}"
+  when: (awx_value_path is undefined) or (awx_value_path|length == 0)
+
+- name: "Ensure awx secret key secret is {{ awx_state }}"
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: awx-secret-key-secret
+        namespace: "{{ awx_namespace }}"
+      stringData:
+        secret_key: "{{ awx_secret }}"
+    state: "{{ awx_state }}"
+  when: (awx_value_path is undefined) or (awx_value_path|length == 0)
+
+- name: "Ensure postgres config is {{ awx_state }}"
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: awx-postgres-secret
+        namespace: "{{ awx_namespace }}"
+      stringData:
+        host: "{{ awx_postgres_host }}"
+        port: "{{ awx_postgres_port }}"
+        database: "{{ awx_postgres_database }}"
+        username: "{{ awx_postgres_username }}"
+        password: "{{ awx_postgres_password }}"
+        sslmode: prefer
+        type: unmanaged
+    state: "{{ awx_state }}"
+  when: (awx_value_path is undefined) or (awx_value_path|length == 0)
+
+- name: Copy ingress template to control plane
+  ansible.builtin.template:
+    src: ingress.j2
+    dest: /tmp/awx_ingress.yml
+    mode: 0644
+
+- name: Apply ingress to the cluster.
+  ansible.builtin.command: "kubectl --kubeconfig {{ awx_kubeconfig }} apply -f /tmp/awx_ingress.yml"
+
+- name: "Ensure awx is {{ awx_state }}"
+  kubernetes.core.helm:
+    kubeconfig: "{{ awx_kubeconfig }}"
+    name: awx-operator
+    chart_repo_url: "https://ansible.github.io/awx-operator/"
+    chart_ref: awx-operator
+    release_namespace: "{{ awx_namespace }}"
+    release_state: "{{ awx_state }}"
+    chart_version: "{{ awx_chart_version }}"
+    values: "{{ awx_helm_values }}"
+
+- name: Wait till awx is running
+  tags: notest
+  kubernetes.core.k8s_info:
+    kind: Deployment
+    wait: true
+    name: "{{ item }}"
+    namespace: "{{ awx_namespace }}"
+    wait_sleep: 30
+    wait_timeout: 360
+  loop:
+    - "{{ awx_name }}-task"
+    - "{{ awx_name }}-web"

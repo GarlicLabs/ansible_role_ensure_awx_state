@@ -1,0 +1,10 @@
+---
+platforms:
+  - name: instance
+provisioner:
+  name: ansible
+  env:
+    K8S_AUTH_KUBECONFIG: ~/.k3d/kubeconfig-$instance.yaml
+    KUBECONFIG: ~/.k3d/kubeconfig-$instance.yaml
+verifier:
+  name: ansible
