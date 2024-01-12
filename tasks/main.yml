@@ -16,6 +16,7 @@
 
 - name: "Ensure awx admin user password is {{ awx_namespace }}"
   kubernetes.core.k8s:
+    kubeconfig: "{{ awx_kubeconfig }}"
     definition:
       apiVersion: v1
       kind: Secret
@@ -29,6 +30,7 @@
 
 - name: "Ensure awx secret key secret is {{ awx_state }}"
   kubernetes.core.k8s:
+    kubeconfig: "{{ awx_kubeconfig }}"
     definition:
       apiVersion: v1
       kind: Secret
@@ -42,6 +44,7 @@
 
 - name: "Ensure postgres config is {{ awx_state }}"
   kubernetes.core.k8s:
+    kubeconfig: "{{ awx_kubeconfig }}"
     definition:
       apiVersion: v1
       kind: Secret
