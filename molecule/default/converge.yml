@@ -7,6 +7,9 @@
   - awx_admin_username: "awx"
   - awx_admin_password: "awx123456"
   - awx_admin_email: mail@example.com
+  - awx_hostname: awx.example.com
+  - awx_storage_class: default
+  - awx_storage_size: 8Gi
   tasks:
     - name: "Include garliclabs.ansible_role_ensure_awx_state"
       ansible.builtin.include_role:
