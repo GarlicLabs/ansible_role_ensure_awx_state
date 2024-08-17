@@ -65,7 +65,7 @@
 
 - name: Copy ingress template to control plane
   ansible.builtin.template:
-    src: ingress.j2
+    src: ingress.yml.j2
     dest: /tmp/awx_ingress.yml
     mode: 0644
 
